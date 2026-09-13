@@ -283,6 +283,11 @@ export default function BuscaNotas() {
             {carregando ? "Buscando…" : "Baixar PDF"}
           </button>
         </div>
+        <div style={{ marginTop: 6, fontSize: 12, color: "var(--tinta-suave)" }}>
+          O PDF é gerado pelo sistema a partir do XML oficial (a API do governo pra isso foi
+          desativada) — a autenticidade da nota se confere pela chave de acesso ou QR Code no
+          Portal Nacional da NFS-e.
+        </div>
       </form>
 
       {carregando && (
