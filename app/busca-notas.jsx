@@ -33,6 +33,31 @@ function formatarCNPJ(valor) {
   return out;
 }
 
+// Mesma ideia do CNPJ, pra data: só dígitos (até 8), encaixando as barras
+// no formato dd/mm/aaaa conforme digita.
+function formatarData(valor) {
+  const d = valor.replace(/\D/g, "").slice(0, 8);
+  let out = d.slice(0, 2);
+  if (d.length > 2) out += "/" + d.slice(2, 4);
+  if (d.length > 4) out += "/" + d.slice(4, 8);
+  return out;
+}
+
+// Converte "dd/mm/aaaa" (o que a pessoa digita) pro formato que a API
+// espera ("aaaa-mm-dd"). Devolve null se a data estiver incompleta ou não
+// existir de verdade no calendário (ex: 31/02) — quem chama decide o que
+// fazer com null (mostrar erro em vez de mandar uma data inválida).
+function dataParaISO(valorBR) {
+  const d = valorBR.replace(/\D/g, "");
+  if (d.length !== 8) return null;
+  const dia = Number(d.slice(0, 2));
+  const mes = Number(d.slice(2, 4));
+  const ano = Number(d.slice(4, 8));
+  const data = new Date(ano, mes - 1, dia);
+  const valida = data.getFullYear() === ano && data.getMonth() === mes - 1 && data.getDate() === dia;
+  return valida ? `${d.slice(4, 8)}-${d.slice(2, 4)}-${d.slice(0, 2)}` : null;
+}
+
 // Descreve o evento de progresso (ver onProgresso em lib/nfse.js) numa
 // frase curta pra mostrar embaixo da barra.
 function textoProgresso(p) {
@@ -50,6 +75,8 @@ function textoProgresso(p) {
 
 export default function BuscaNotas() {
   const [cnpj, setCnpj] = useState("");
+  const [dataInicial, setDataInicial] = useState("");
+  const [dataFinal, setDataFinal] = useState("");
   const [tipo, setTipo] = useState("emitidas");
   const [carregando, setCarregando] = useState(false);
   const [progresso, setProgresso] = useState(null); // { etapa, pagina, notasEncontradas, notaAtual }
@@ -70,9 +97,21 @@ export default function BuscaNotas() {
   async function buscar(formato) {
     const formEl = formRef.current;
     if (!formEl) return;
+
+    const dataInicialISO = dataParaISO(dataInicial);
+    const dataFinalISO = dataParaISO(dataFinal);
+    if (!dataInicialISO || !dataFinalISO) {
+      const texto = "Preencha as duas datas do período corretamente (dd/mm/aaaa).";
+      setMensagem({ texto, tipo: "erro" });
+      alert(texto);
+      return;
+    }
+
     const formData = new FormData(formEl);
     formData.set("tipo", tipo);
     formData.set("formato", formato);
+    formData.set("dataInicial", dataInicialISO);
+    formData.set("dataFinal", dataFinalISO);
 
     setCarregando(true);
     setProgresso(null);
@@ -173,11 +212,29 @@ export default function BuscaNotas() {
           <div className="grupo-linha">
             <div className="campo">
               <label htmlFor="dataInicial">De</label>
-              <input id="dataInicial" name="dataInicial" type="date" required disabled={carregando} />
+              <input
+                id="dataInicial"
+                type="text"
+                inputMode="numeric"
+                placeholder="dd/mm/aaaa"
+                value={dataInicial}
+                onChange={(e) => setDataInicial(formatarData(e.target.value))}
+                required
+                disabled={carregando}
+              />
             </div>
             <div className="campo">
               <label htmlFor="dataFinal">Até</label>
-              <input id="dataFinal" name="dataFinal" type="date" required disabled={carregando} />
+              <input
+                id="dataFinal"
+                type="text"
+                inputMode="numeric"
+                placeholder="dd/mm/aaaa"
+                value={dataFinal}
+                onChange={(e) => setDataFinal(formatarData(e.target.value))}
+                required
+                disabled={carregando}
+              />
             </div>
           </div>
         </div>
