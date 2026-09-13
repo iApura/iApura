@@ -21,6 +21,18 @@ function baixarBase64(base64, nomeArquivo, mime) {
 
 const MIME_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+// Formata enquanto digita: mantém só os dígitos (até 14) e vai encaixando
+// pontuação no formato xx.xxx.xxx/xxxx-xx conforme a pessoa digita.
+function formatarCNPJ(valor) {
+  const d = valor.replace(/\D/g, "").slice(0, 14);
+  let out = d.slice(0, 2);
+  if (d.length > 2) out += "." + d.slice(2, 5);
+  if (d.length > 5) out += "." + d.slice(5, 8);
+  if (d.length > 8) out += "/" + d.slice(8, 12);
+  if (d.length > 12) out += "-" + d.slice(12, 14);
+  return out;
+}
+
 // Descreve o evento de progresso (ver onProgresso em lib/nfse.js) numa
 // frase curta pra mostrar embaixo da barra.
 function textoProgresso(p) {
@@ -37,6 +49,7 @@ function textoProgresso(p) {
 }
 
 export default function BuscaNotas() {
+  const [cnpj, setCnpj] = useState("");
   const [tipo, setTipo] = useState("emitidas");
   const [carregando, setCarregando] = useState(false);
   const [progresso, setProgresso] = useState(null); // { etapa, pagina, notasEncontradas, notaAtual }
@@ -142,7 +155,17 @@ export default function BuscaNotas() {
       >
         <div className="campo">
           <label htmlFor="cnpj">CNPJ do cliente</label>
-          <input id="cnpj" name="cnpj" type="text" placeholder="00.000.000/0000-00" required disabled={carregando} />
+          <input
+            id="cnpj"
+            name="cnpj"
+            type="text"
+            inputMode="numeric"
+            placeholder="00.000.000/0000-00"
+            value={cnpj}
+            onChange={(e) => setCnpj(formatarCNPJ(e.target.value))}
+            required
+            disabled={carregando}
+          />
         </div>
 
         <div className="grupo">

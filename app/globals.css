@@ -1,13 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 
 :root {
-  --papel: #eef1ee;
-  --papel-alt: #e4e9e4;
+  --papel: #f7f8fa;
+  --papel-alt: #eceef2;
   --tinta: #1c2b28;
   --tinta-suave: #52605c;
-  --verde: #2f5d50;
-  --verde-escuro: #21453b;
-  --borda: #c9d1c9;
+  --verde: #000d80;
+  --verde-escuro: #000a5c;
+  --borda: #d7dae0;
   --erro: #a13d2b;
   --branco: #fbfcfb;
 }
