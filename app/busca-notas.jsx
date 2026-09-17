@@ -100,9 +100,7 @@ export default function BuscaNotas() {
     const dataInicialISO = dataParaISO(dataInicial);
     const dataFinalISO = dataParaISO(dataFinal);
     if (!dataInicialISO || !dataFinalISO) {
-      const texto = "Preencha as duas datas do período corretamente (dd/mm/aaaa).";
-      setMensagem({ texto, tipo: "erro" });
-      alert(texto);
+      setMensagem({ texto: "Preencha as duas datas do período corretamente (dd/mm/aaaa).", tipo: "erro" });
       return;
     }
 
@@ -146,7 +144,6 @@ export default function BuscaNotas() {
     } catch {
       setCarregando(false);
       setMensagem({ texto: "Falha de conexão. Tente de novo.", tipo: "erro" });
-      alert("Falha de conexão. Tente de novo.");
       return;
     }
 
@@ -154,14 +151,11 @@ export default function BuscaNotas() {
     setProgresso(null);
 
     if (!final || final.tipo === "erro") {
-      const texto = final?.erro || "Algo deu errado.";
-      setMensagem({ texto, tipo: "erro" });
-      alert(texto);
+      setMensagem({ texto: final?.erro || "Algo deu errado.", tipo: "erro" });
       return;
     }
     if (final.tipo === "aviso") {
       setMensagem({ texto: final.aviso, tipo: "aviso" });
-      alert(final.aviso);
       return;
     }
 
@@ -301,17 +295,7 @@ export default function BuscaNotas() {
         </div>
       )}
 
-      {mensagem && (
-        <div
-          style={{
-            marginTop: 16,
-            fontSize: 14,
-            color: mensagem.tipo === "erro" ? "var(--erro)" : "var(--tinta-suave)",
-          }}
-        >
-          {mensagem.texto}
-        </div>
-      )}
+      {mensagem && <div className={`mensagem-${mensagem.tipo}`} style={{ marginTop: 16 }}>{mensagem.texto}</div>}
 
       {resultado && (
         <button className="botao botao-secundario" style={{ marginTop: 8 }} onClick={baixarPlanilha}>
